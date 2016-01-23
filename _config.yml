@@ -3,7 +3,7 @@ title: iOS Resrouces
 email: scott@scottylabs.org
 description: > # this means to ignore newlines until "baseurl:"
   These resources were made to be used with the Swift and iOS CrashCourses in preparation for TartanHacks.  
-baseurl: "" # the subpath of your site, e.g. /blog/
+baseurl: "/IntroToSwift" # the subpath of your site, e.g. /blog/
 url: "http://skottyk.github.io" # the base hostname & protocol for your site
 github_username:  SkottyK
 
