@@ -66,6 +66,8 @@ We are going to make a shopping list app that uses some common UI elements and t
 
 ## Defining a Model
 
+_[Diff](https://github.com/SkottyK/IntroToSwiftExample/commit/f7134599c2ba620ec7373855ff5d3bc60835ae67) for this step_
+
 We are only creating one model object, an `Item` class with two fields: `name` and `count`.
 
 The entire class can be defined like this:
@@ -89,6 +91,8 @@ We will subclass `UITableViewController`, because it is very applicable to a lot
 
 
 ### Adding Infomation
+
+_[Diff](https://github.com/SkottyK/IntroToSwiftExample/commit/b8ea6b54deb9197efabcf2318ff1395f14ea257a) for this step_
 
 We need to set up our `ViewController` to be a subclass of `UITableViewController`. Change the class declaration to the following:
 
@@ -117,7 +121,9 @@ override func viewDidLoad() {
 
 Now that we have information, we need to configure the table to show it.
 
-### Table Configuration
+### Table Size
+
+_[Diff](https://github.com/SkottyK/IntroToSwiftExample/commit/0fb88c14dc52c66f390bf20ed2e5464cffef8919) for this step_
 
 These methods correspond to protocols called `UITableViewDelegate` and `UITableViewDataSource`, which are implemented by `UITableViewController`.
 
@@ -132,6 +138,10 @@ override func tableView(tableView: UITableView, numberOfRowsInSection section: I
     return itemList.count
 }
 ```
+
+### Populate Table
+
+_[Diff](https://github.com/SkottyK/IntroToSwiftExample/commit/00fcbc7a9675fa8ea5f617fed80b13dd02d97f30) for this step_
 
 Next, for a given row in the table, we have to tell the table what information to show:
 
@@ -175,6 +185,8 @@ __Hit run!!!__
 ## Extra Features
 
 ### Swipe to Delete
+
+_[Diff](https://github.com/SkottyK/IntroToSwiftExample/commit/f49a0b27933b85b346e7b52852faaff2a0bda87d) for this step_
 
 When we have bought an item, we want to easily delete it from the list, so we don't see it anymore. It is tasks like this that make you appreciate iOS's built-in functionality. Just add the following delegate method to add swipe-to-delete functionality to your shopping list.
 
