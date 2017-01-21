@@ -47,3 +47,8 @@ $on-laptop:        800px;
         "layout",
         "syntax-highlighting"
 ;
+
+// Remove theme background for code
+pre, code {
+    background-color: #FFF;
+}
