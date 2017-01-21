@@ -41,7 +41,7 @@ Variables in Swift are declared using one of two declaration statements: `var` o
 
 Do not use `let` only for constants in the traditional sense (i.e. the handful you put at the top of a file or class). Swift is a very conservative language, and prefers you label as many things as you can with `let` rather than `var`. The most notable place where you may not think to use `let` is for when you are assigning a reference (aka pointer) to the variable. When you have a reference/pointer to an object, the reference itself does not change! Only the object does. So the following would be a correct use of `let`:
 
-```
+```swift
 let obj = Student()
 // We can call mutating methods!
 obj.setName('Harry')
@@ -49,11 +49,16 @@ obj.setName('Harry')
 obj = otherStudent // XXXXXX BAD CODE, WON'T COMPILE
 ```
 
+It is important to note that the above only applies to "reference" types (C
+programmers, think pointers). Reference types are those declared by `class`.
+Types described by `enum` or `struct` declarations are called "value" types, and
+cannot be mutated in this way when declared with let.
+
 ### `var`
 
 `var` is for mutable variables that will be changed over time. The following is an example:
 
-```
+```swift
 var score = 0
 
 func madeGoal() {
@@ -65,7 +70,7 @@ func madeGoal() {
 
 What happens when you try to run the following code?
 
-```
+```swift
 let score = 0
 
 func madeGoal() {
@@ -94,7 +99,7 @@ They behave exactly as you expect they would, so we won't get too detailed witht
 
 Swift makes liberal use of anonymous functions, called blocks, for continuation and asynchronous tasks. Unfortunately, blocks are too much to go into for this talk, but it is still useful to recognize function types. The general format is:
 
-```
+```swift
 (Type1, Type2, ...) -> ReturnType
 ```
 
@@ -102,7 +107,7 @@ Swift makes liberal use of anonymous functions, called blocks, for continuation 
 
 Functions are declared with the `func` keyword.
 
-```
+```swift
 func approximateRoot(num: Double,  withTolerance tolerance: Double) -> Double {
   ...
 }
@@ -110,13 +115,13 @@ func approximateRoot(num: Double,  withTolerance tolerance: Double) -> Double {
 
 The above declaration is a simple declaration illustrating a multiple argument function with a return type. If the return type is `Void`, the `-> T` is not required.
 
-You can see the `withTolerance` for the second parameter, this is a display name for the public interface. Swift, like objective C, differentiates between the public names and local names of function parameters, so the 2nd to last parameters expect to be given a public name. This can make code more readable, the above function would be called like this:
+You can see the `withTolerance` for the second parameter, this is a display name for the public interface. Swift, like objective C, differentiates between the public names and local names of function parameters, so parameters after the first one expected to have a public name. This can make code more readable, the above function would be called like this:
 
-```
-approximateRoot(72, withTolerance: 0.1)
+```swift
+approximateRoot(num: 72, withTolerance: 0.1)
 ```
 
-I won't cover it in class, but you can disable the public interface name, set default parameter values, and have variable length parameters if you want.
+I won't cover it in class, but you can disable the public interface name, set default parameter values, and have variable length parameters if you want. More information can be found [here](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Functions.html#//apple_ref/doc/uid/TP40014097-CH10-ID166).
 
 ### Class Types
 
@@ -124,7 +129,7 @@ Swift classes do not inheret from a base class, but if you are using Objective-C
 
 Inheritance in Swift works very similarly to inheritance in other object oriented languages. One advantage of class types is the ability to make subclasses, so any method written for `MyClass` will also work with `SubclassOfMyClass`. But this technique has its limits because inheritance is limited to one superclass in Swift. Instead, we can have `protocol` types, similar to a Java `interface`, that objects can conform to. The classic example is writing a generic sort function:
 
-```
+```swift
 protocol Comparable {
   func compare(other: Self) -> Int
 }
@@ -140,7 +145,7 @@ The use of protocols to create generic interfaces is a powerful paradigm in Swif
 
 A class declaration must is made up of a unique _class name_, an optional _superclass_, and, zero or more _implemented interfaces_.
 
-```
+```swift
 class <class name>: <super class?>, <interface 1?>, <interface 2?>, ... {
   ...
 }
@@ -152,7 +157,7 @@ One way to think of it is that after the colon you are making a list of types th
 
 Properties, fields, or instance variables (use whichever nomenclature you want), are declared inside of the class, regardless of their access (this is actually different from Objective C). They may have default values, or may be set in the constructor.
 
-```
+```swift
 class Person {
   private var age = 0
   private let creationDate: NSDate
@@ -172,7 +177,7 @@ You can also use `static` and `lazy` properties, but we won't cover them today.
 If none of your properties need to be set, there is a default no-args initializer generated by Swift. Otherwise, you must implement at least one initializer. Swift gets all worked up about _designated initializer_s, _required initiailizers_ and _convenience initializers_, but to be honest just do what the error messages tell you before jumping down the rabbit hole of trying to understand those terms. In general, you should be fine if you use a standard initializer, then added convenience ones (which simply call the first initializer). We could implement similar behavior to the last example like so: 
 
 
-```
+```swift
 class Person {
   private var age: Int
   private let creationDate: NSDate
@@ -193,7 +198,7 @@ class Person {
 
 To override a method, the `override` keyword _must_ be used. This is to let the compiler check to make sure overriden methods were overriden on purpose.
 
-```
+```swift
 class CustomView: UIView {
   override func drawRect(rect: CGRect) {
     ...
@@ -205,7 +210,7 @@ class CustomView: UIView {
 
 Protocols declare an interface of public properties and functions to be implemented. Public variable can may or may not be settable.
 
-```
+```swift
 protocol 2DShape {
     var numSides: Int { get }
     var area: Int { get }
@@ -226,8 +231,8 @@ The `let` statement was added to encourage the default behavior of variables to 
 
 Using optional types, try to make the following code compile:
 
-```
-var gameStatus: String = null
+```swift
+var gameStatus: String = nil
 
 func startGame() {
   gameStatus = "Playing"
@@ -255,7 +260,7 @@ displayStatus()
 
 `if` statements and `while` loops have very similar syntax to other languages, minus the parenthesis. Swift uses the standard boolean operators `&&` and `||`.
 
-```
+```swift
 if bored {
   var areWeThereYet = false
   while bored && !areWeThereYet {
@@ -268,7 +273,7 @@ if bored {
 
 Usualy Swift `for` loops use `for-in` syntax. To create a range a numbers, use `start...end` for inclusive or `start..<end` for exclusive. 
 
-```
+```swift
 for i in 0..<10 {
   ...
 }
@@ -287,7 +292,7 @@ _\*\*It is also possible to use a more traditional `(;;)` syntax, but it seems t
 
 If the assignment succeeds, the code inside of the `if` brackets is executed, otherwise the `else` code is executed.
 
-```
+```swift
 // crazyExperiment() has return type Dinosaur?
 if let dino = crazyExperiment() {
   panic()
