@@ -42,6 +42,34 @@ even when it is based off a view event.
 later, but essentially this means that a controller must provide a specific
 interface in order to act as a view delegate.
 
+### Threading
+
+Whenever you are developing a user interface, especially one on
+a resource-constrained platform, you should focus on making the main thread
+(a.k.a. UI thread) free from work. It should be used exclusively for updating
+user interface elements, to minimize lag.
+
+If you are reading a file or making a network request, you can do work
+asynchronously on a background thread with the following code:
+
+```swift
+DispatchQueue.global(qos: .userInitiated).async {
+    // CODE GOES HERE
+}
+```
+
+Frequently, we want to call back to the main thread once we have finished our
+work, we can do that like so:
+
+```swift
+DispatchQueue.global(qos: .userInitiated).async {
+    let result = longNetworkingOperation()
+    DispatchQueue.main.async {
+        updateUI(result)
+    }
+}
+```
+
 ### UIKit
 
 UIKit is Apple's developer library for iOS technology. _Always_ use it where
@@ -82,7 +110,6 @@ view:
      the view.
 
 __Always__ call the `super` method before doing your own implementation.
-
 
 # Today's App
 
