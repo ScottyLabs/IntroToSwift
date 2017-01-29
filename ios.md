@@ -172,7 +172,7 @@ target 'SLDiningInfo' do
     end
 EOT
 # Satisfy Framework dependencies
-pod repo udate && pod install
+pod repo update && pod install
 # Finally execute this command to open XCode again
 open SLDiningInfo.xcworkspace
 ```
