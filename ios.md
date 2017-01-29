@@ -53,7 +53,7 @@ If you are reading a file or making a network request, you can do work
 asynchronously on a background thread with the following code:
 
 ```swift
-DispatchQueue.global(qos: .userInitiated).async {
+DispatchQueue.global(qos: .background).async {
     // CODE GOES HERE
 }
 ```
@@ -62,7 +62,7 @@ Frequently, we want to call back to the main thread once we have finished our
 work, we can do that like so:
 
 ```swift
-DispatchQueue.global(qos: .userInitiated).async {
+DispatchQueue.global(qos: .background).async {
     let result = longNetworkingOperation()
     DispatchQueue.main.async {
         updateUI(result)
@@ -195,6 +195,7 @@ same if you want to do more than simply display information.
 The structure can be defined like this:
 
 ```swift
+// DiningLocation.swift
 struct DiningLocation {
     let name: String
     let description: String
@@ -209,27 +210,44 @@ method to create `DiningLocation` objects from the returned JSON. Arbitrary JSON
 will not always have the right fields; we could write a validator, but instead
 our factory will have an optional return type.
 
-We will add constants to represent the string keys we will use to access the
+We will add constants to hold the key descriptions in `DiningAPI.swift` which
+will manage all of our API information. Keeping our constants in this file
+allows us to migrate API versions most simply.
+
+```swift
+// DiningAPI.swift
+class DiningAPI {
+    static let queryUrl = "https://apis.scottylabs.org/dining/v1/locations"
+
+    // Constants for accessing JSON properties
+    // Compliant with ScottyLabs Dining API v1
+    struct Keys {
+        static let locationList = "locations"
+        struct Location {
+            static let name = "name";
+            static let description = "description";
+            static let location = "location";
+        }
+    }
+}
+```
+
+
 JSON data. So far I haven't found a better way to do this:
 
 ```swift
+// DiningLocation.swift
 import SwiftyJSON
 
 struct DiningLocation {
-    // Constants for accessing JSON properties
-    // Compliant with ScottyLabs Dining API v1
-    private static let NAME_STRING = "name";
-    private static let DESCRIPTION_STRING = "description";
-    private static let LOCATION_STRING = "location";
-
     let name: String
     let description: String
     let location: String
 
     static func fromJson(json: JSON) -> DiningLocation? {
-        if let tmpName = json[NAME_STRING].string,
-            let tmpDesc = json[DESCRIPTION_STRING].string,
-            let tmpLoc = json[LOCATION_STRING].string {
+        if let tmpName = json[DiningAPI.Keys.Location.name].string,
+            let tmpDesc = json[DiningAPI.Keys.Location.description].string,
+            let tmpLoc = json[DiningAPI.Keys.Location.location].string {
             return DiningLocation(name: tmpName, description: tmpDesc, location: tmpLoc)
         }
         return nil
@@ -252,12 +270,34 @@ static factory produces `nil` if JSON cannot be parsed, we use the `filter`
 function to remove any `nil` entries from our array.
 
 ```swift
-import Foundation
+// DiningAPI.swift
 import SwiftyJSON
 import Alamofire
-
 class DiningAPI {
-    static let QUERY_URL = "https://apis.scottylabs.org/dining/v1/locations"
+    static let queryUrl = "https://apis.scottylabs.org/dining/v1/locations"
+
+    /**
+    Constants for accessing JSON properties. Compliant with ScottyLabs Dining API v1
+    */
+    struct Keys {
+        static let locationList = "locations"
+        struct Location {
+            static let name = "name"
+            static let description = "description"
+            static let location = "location"
+            static let keywords = "keywords"
+            static let times = "times"
+            struct Times {
+                static let start = "start"
+                static let end = "start"
+                struct TimeUnit {
+                    static let day = "day"
+                    static let hour = "hour"
+                    static let minute = "minute"
+                }
+            }
+        }
+    }
 
     /**
     Asynchronously fetches dinining location information from the ScottyLabs dining API
@@ -269,7 +309,7 @@ class DiningAPI {
      called on main thread.
     */
     static func fetchLocations(complete onComplete: @escaping ([DiningLocation]) -> ()) {
-        Alamofire.request(QUERY_URL)
+        Alamofire.request(queryUrl)
           .responseJSON { response in
             // Check if there was an error with the request
             guard response.result.error == nil else {
@@ -281,7 +321,7 @@ class DiningAPI {
             // We should still call the completion handler on the main queue though
             DispatchQueue.global(qos: .background).async {
                 // Check if the array can be properly parsed
-                guard let jsonArr = SwiftyJSON.JSON(response.value!).array else {
+                guard let jsonArr = SwiftyJSON.JSON(response.value!)["locations"].array else {
                     print("Error: Result recieved, but unparceable")
                     // Call the completion handler on the main thread with an empty array to signify
                     // that no results were found
@@ -316,6 +356,7 @@ We need to set up our `ViewController` to be a subclass of
 `UITableViewController`. Change the class declaration to the following:
 
 ```swift
+// ViewController.swift
 class ViewController: UITableViewController {
 ```
 
@@ -328,6 +369,7 @@ information. It will be initialized to an empty list, but we will also add
 a function to fetch new data and update the list.
 
 ```swift
+// ViewController.swift
 var locationList = [DiningLocation]()
 
 private func refreshLocationList() {
@@ -349,7 +391,8 @@ not be initialized yet. Use `viewDidLoad` for all initialization, and
 user is viewing your screen.
 
 ```swift
-override func viewDidLoad() {
+// ViewController.swift
+override func viewWillAppear() {
     super.viewDidLoad()
     // Fetch an initial list of results
     refreshLocationList()
@@ -366,6 +409,7 @@ These methods correspond to protocols called `UITableViewDelegate` and
 First, we need to tell the table how many rows to display:
 
 ```swift
+// ViewController.swift
 override func numberOfSections(in tableView: UITableView) -> Int {
     return 1
 }
@@ -380,15 +424,17 @@ override func tableView(_ tableView: UITableView, numberOfRowsInSection section:
 Next, for a given row in the table, we have to tell the table what information to show:
 
 ```swift
+// ViewController.swift
 override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     var cell = tableView.dequeueReusableCell(withIdentifier: "LocationCell")
     if cell == nil {
         cell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "LocationCell")
     }
 
-    if let cell = cell, indexPath.row < locationList.count {
+    let snapshot = locationList
+    if let cell = cell, indexPath.row < snapshot.count {
         // These are the only line that actually set up the cell
-        let location = locationList[indexPath.row]
+        let location = snapshot[indexPath.row]
         cell.textLabel?.text = location.name
         cell.detailTextLabel?.text = location.location
     }
