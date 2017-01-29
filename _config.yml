@@ -1,11 +1,11 @@
 # Site settings
-title: iOS Resrouces
-email: scott@scottylabs.org
+title: Swift and iOS Resources
+email: hello@<span style="display:none">X</span>scottylabs.org
 description: > # this means to ignore newlines until "baseurl:"
-  These resources were made to be used with the Swift and iOS CrashCourses in preparation for TartanHacks.  
+    These resources were made to be used with the Swift and iOS CrashCourses in preparation for <a href='https://tartanhacks.org/'>TartanHacks</a>.
 baseurl: "/IntroToSwift" # the subpath of your site, e.g. /blog/
-url: "http://skottyk.github.io" # the base hostname & protocol for your site
-github_username:  SkottyK
+url: "https://scottylabs.org" # the base hostname & protocol for your site
+github_username:  ScottyLabs
 
 # Build settings
 markdown: kramdown
