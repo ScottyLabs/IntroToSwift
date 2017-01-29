@@ -230,7 +230,7 @@ import SwiftyJSON
 import Alamofire
 
 class DiningAPI {
-    static let QUERY_URL = "http://apis.scottylabs.org/dining/v1/locations"
+    static let QUERY_URL = "https://apis.scottylabs.org/dining/v1/locations"
 
     /**
     Asynchronously fetches dinining location information from the ScottyLabs dining API
